@@ -23,6 +23,26 @@ avant = model.predict_many(images)
 apres = model.predict_many([rotate(img, 10) for img in images])
 ```
 
+## Voir les chiffres
+
+Depuis la racine du dépôt, dans le terminal du conteneur :
+
+```bash
+python tools/voir_chiffres.py aucune --chiffre 3       # les 3 de test, tels quels
+python tools/voir_chiffres.py rotate 10                # chaque image avant et après une rotation de 10°
+python tools/voir_chiffres.py fog 0.3 --changees       # seulement les images qui changent de classe
+```
+
+La commande écrit une page dans `tp/tp5_metamorphique/vues/` : chaque image avant et après, sa
+vraie classe, la classe prédite et la confiance ; les images qui changent de classe sont
+encadrées. Ouvrez-la par un double-clic (Codespaces : clic droit sur le fichier, *Download*).
+Depuis votre test, sur les mêmes images que lui :
+
+```python
+from tools.voir_chiffres import voir_chiffres
+voir_chiffres(IMAGES, [fog(img, 0.3) for img in IMAGES], LABELS)
+```
+
 ## Étapes
 
 1. **Lisez et lancez** la relation fournie : `make test TP=5`
@@ -32,7 +52,7 @@ apres = model.predict_many([rotate(img, 10) for img in images])
    transformation, sortie attendue, **hypothèse justifiée**, critère de violation. Essayez une
    transformation géométrique (translation, rotation) ou une dégradation (brouillard, bruit).
 3. **Écrivez le test** `test_relation_2_...` dans `test_metamorphic.py` et lancez-le.
-4. **Si la relation est violée**, regardez les images concernées (`print(np.round(img, 1))`) et
+4. **Si la relation est violée**, regardez les images concernées (`voir_chiffres`, ci-dessus) et
    tranchez : **bug du modèle** (l'hypothèse tient, le modèle a tort) ou **relation
    injustifiée** (l'hypothèse ne tient pas pour ces entrées) ?
 

@@ -15,3 +15,4 @@ dist/
 
 # Pages produites par tools/voir_simulation.py
 tp/tp4_simulator/vues/
+tp/tp5_metamorphique/vues/

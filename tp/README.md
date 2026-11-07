@@ -66,7 +66,8 @@ tp/
   tp3_mutation/          test_mutation.py, mutants_bonus.txt
   tp4_simulator/         sim/ (le simulateur), scenarios/, EXIGENCES.md, test_scenarios.py, check.py
   tp5_metamorphique/     model.py, transforms.py, relation.md, test_metamorphic.py
-tools/                   gen_tests.py, llm.py, mini_mutate.py, random_scenarios.py
+tools/                   gen_tests.py, llm.py, mini_mutate.py, random_scenarios.py,
+                         voir_simulation.py (TP4), voir_chiffres.py (TP5)
 fallback/                sorties d'exemple d'un LLM (si le LLM local ne répond pas)
 tests/                   tests de l'outillage du dépôt (make selftest)
 ```
@@ -81,6 +82,7 @@ tests/                   tests de l'outillage du dépôt (make selftest)
 | `make mutmut` | mutation avec l'outil standard mutmut (comparaison) |
 | `make check` / `make check EQUIPE=binome-07` | score de vos tests TP4 (+ ligne pour le classement) |
 | `python tools/voir_simulation.py jour_nominal --set luminosity=0.5` | TP4 : voir une simulation (page animée dans `tp/tp4_simulator/vues/`) |
+| `python tools/voir_chiffres.py rotate 10` | TP5 : voir les chiffres avant et après une transformation (page dans `tp/tp5_metamorphique/vues/`) |
 | `python tools/gen_tests.py remise.py --spec SPEC.md` | génère des tests avec le LLM |
 | `make pull-model` | télécharge le modèle LLM si l'image a été construite sans |
 

@@ -67,7 +67,7 @@ tp/
   tp3_mutation/            tests à compléter (test_mutation.py)
   tp4_simulator/           simulateur, EXIGENCES.md, scénarios
   tp5_metamorphique/       classifieur, transformations, relation.md
-tools/                     gen_tests.py, llm.py
+tools/                     gen_tests.py, llm.py, voir_simulation.py, voir_chiffres.py
 fallback/                  exemples de sortie d'un LLM (secours)
 tests/                     tests de l'outillage du dépôt
 Makefile
@@ -86,6 +86,7 @@ Makefile
 | `make mutate` | lance le test de mutation et affiche un résumé |
 | `make check` | (TP4) calcule votre score contre les variantes défectueuses |
 | `python tools/voir_simulation.py jour_nominal` | (TP4) voir une simulation : page animée dans `tp/tp4_simulator/vues/` |
+| `python tools/voir_chiffres.py rotate 10` | (TP5) voir les chiffres avant et après une transformation : page dans `tp/tp5_metamorphique/vues/` |
 | `make pull-model` | télécharge le modèle de langage local si absent |
 | `make clean` | nettoie les fichiers générés |
 
