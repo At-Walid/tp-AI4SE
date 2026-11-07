@@ -1,0 +1,20 @@
+# Dépendances Python du TP « IA pour le GL, Tests » (Python 3.11).
+# Versions figées pour que tout le monde ait exactement le même environnement.
+
+# Tests
+pytest==9.1.1
+pytest-cov==7.1.0
+coverage==7.16.1
+hypothesis==6.168.3
+
+# Mutation (outil secondaire ; l'outil principal est tools/mini_mutate.py)
+mutmut==2.5.1
+
+# Calcul et petit modèle de classification (TP5)
+numpy==2.4.4
+scipy==1.17.1
+scikit-learn==1.9.1
+pillow==12.3.0
+
+# Affichage (optionnel)
+rich==15.0.0

@@ -1,0 +1,497 @@
+<title>Simulateur TP4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout : une colonne ; sélecteur de cas, lecteur partagé, une vue de dessus par simulation, deux courbes synchronisées. */
+:root {
+  --bg: #edf0f2;
+  --surface: #ffffff;
+  --fg: #1b2228;
+  --muted: #5b6670;
+  --line: #d3d9de;
+  --accent: #1d5fa6;
+  --ok: #1f7a4d;
+  --ok-soft: #e3f2ea;
+  --bad: #c2372b;
+  --bad-soft: #fbe7e4;
+  --warn: #9a5c00;
+  --warn-soft: #fbefdc;
+  --run1: #1d5fa6;
+  --run2: #c2372b;
+  --run3: #7a4fb3;
+  --asphalt: #3b4148;
+  --marking: #f3f3ee;
+  --sidewalk: #cbc6bc;
+  --curb: #9c968b;
+  --night: #0b1830;
+  --beam: #ffd84d;
+  --pedestrian: #f0a020;
+  --font-display: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12161a; --surface: #1a1f24; --fg: #e4e8ec; --muted: #9aa5af; --line: #2c343b;
+    --accent: #6ea6e6; --ok: #4fbf87; --ok-soft: #173126; --bad: #ef6b5e; --bad-soft: #3a1d1a;
+    --warn: #e0a64a; --warn-soft: #36280f; --run1: #6ea6e6; --run2: #ef6b5e; --run3: #b195e6;
+    --asphalt: #2b3036; --marking: #d6d9d3; --sidewalk: #4b4842; --curb: #6a665e; --night: #000814;
+    --beam: #ffd84d; --pedestrian: #f0a020;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12161a; --surface: #1a1f24; --fg: #e4e8ec; --muted: #9aa5af; --line: #2c343b;
+  --accent: #6ea6e6; --ok: #4fbf87; --ok-soft: #173126; --bad: #ef6b5e; --bad-soft: #3a1d1a;
+  --warn: #e0a64a; --warn-soft: #36280f; --run1: #6ea6e6; --run2: #ef6b5e; --run3: #b195e6;
+  --asphalt: #2b3036; --marking: #d6d9d3; --sidewalk: #4b4842; --curb: #6a665e; --night: #000814;
+  --beam: #ffd84d; --pedestrian: #f0a020;
+  color-scheme: dark;
+}
+
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
+.page {
+  max-width: 980px; margin: 0 auto;
+  padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 22px;
+}
+header { display: flex; flex-direction: column; gap: 6px; }
+.eyebrow { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 13px; letter-spacing: .09em; text-transform: uppercase; color: var(--accent); }
+h1 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: clamp(30px, 5vw, 42px); line-height: 1.05; text-wrap: balance; }
+h2 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 20px; line-height: 1.2; }
+p { margin: 0; max-width: 72ch; }
+.lede { color: var(--muted); }
+.notice { font-size: 14px; color: var(--warn); }
+.notice:empty { display: none; }
+
+.picker { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; align-items: center; }
+.picker .group-label { font-size: 13px; color: var(--muted); font-weight: 600; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: inherit; font-size: 14px; font-weight: 500; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 5px 13px; cursor: pointer; }
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.case { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.case .defect { font-weight: 600; }
+.case .note { border-left: 3px solid var(--accent); padding-left: 10px; }
+.params { display: flex; flex-wrap: wrap; gap: 6px; }
+.param { font-size: 13px; background: var(--bg); border-radius: 4px; padding: 2px 8px; color: var(--muted); }
+.param b { color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.player { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 8px; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.btn { font: inherit; font-size: 15px; font-weight: 600; color: var(--surface); background: var(--accent); border: 0; border-radius: 6px; padding: 7px 16px; cursor: pointer; min-width: 92px; }
+.btn.secondary { color: var(--fg); background: var(--surface); border: 1px solid var(--line); min-width: 0; }
+.scrub { flex: 1 1 220px; min-width: 0; accent-color: var(--accent); }
+.time { font-family: var(--font-mono); font-size: 14px; font-variant-numeric: tabular-nums; min-width: 8.5ch; }
+.rate { font: inherit; font-size: 14px; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+
+.runs { display: flex; flex-direction: column; gap: 16px; }
+.run { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.run-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.swatch { width: 12px; height: 12px; border-radius: 3px; flex: none; }
+.run-name { font-weight: 600; }
+.pill { font-size: 13px; font-weight: 600; border-radius: 999px; padding: 2px 10px; }
+.pill.ok { color: var(--ok); background: var(--ok-soft); }
+.pill.bad { color: var(--bad); background: var(--bad-soft); }
+.pill.warn { color: var(--warn); background: var(--warn-soft); }
+.live { margin-left: auto; font-family: var(--font-mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.live b { color: var(--fg); font-weight: 500; }
+.scene { width: 100%; height: auto; display: block; border-radius: 6px; background: var(--sidewalk); }
+.scene .sidewalk { fill: var(--sidewalk); }
+.scene .road { fill: var(--asphalt); }
+.scene .curb { stroke: var(--curb); stroke-width: .12; }
+.scene .lane-line { stroke: var(--marking); stroke-width: .12; stroke-dasharray: 3 4.5; }
+.scene .zebra { fill: var(--marking); }
+.scene .night { fill: var(--night); }
+.scene .headlight { fill: var(--beam); }
+.scene .beam { stroke: var(--beam); stroke-width: .14; stroke-dasharray: .5 .35; }
+.scene .ped { fill: var(--pedestrian); stroke: var(--fg); stroke-width: .08; }
+.scene .ped.hidden-part { fill-opacity: .45; stroke-dasharray: .2 .15; }
+.scene .halo { fill: none; stroke: var(--pedestrian); stroke-width: .1; opacity: .7; }
+.scene .glass { fill: rgba(200, 225, 255, .55); }
+.scene .brake { fill: #ff2a1a; }
+.scene .burst { fill: var(--bad); fill-opacity: .25; stroke: var(--bad); stroke-width: .2; }
+.scene .dim { stroke: var(--marking); stroke-width: .1; }
+.scene .dim-text { fill: var(--marking); stroke: var(--asphalt); stroke-width: .35px; paint-order: stroke; font-family: var(--font-mono); font-size: 1.15px; font-weight: 500; }
+.scene .ruler { fill: var(--fg); fill-opacity: .7; font-family: var(--font-mono); font-size: 1px; }
+.log { font-size: 13px; }
+.log summary { cursor: pointer; color: var(--muted); }
+.log ol { margin: 6px 0 0; padding-left: 20px; font-family: var(--font-mono); font-size: 12.5px; display: flex; flex-direction: column; gap: 2px; }
+.log li.future { opacity: .4; }
+
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.chart { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.chart h3 { margin: 0; font-size: 15px; font-weight: 600; }
+.chart .sub { font-size: 13px; color: var(--muted); }
+.chart svg { width: 100%; height: auto; display: block; }
+.chart .axis { stroke: var(--line); stroke-width: 1; }
+.chart .grid { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 3; }
+.chart .tick { fill: var(--muted); font-family: var(--font-mono); font-size: 11px; }
+.chart .threshold { stroke: var(--warn); stroke-width: 1.5; stroke-dasharray: 6 4; }
+.chart .threshold-label { fill: var(--warn); font-size: 11px; font-weight: 600; font-family: var(--font-body); }
+.chart .cursor { stroke: var(--fg); stroke-width: 1; opacity: .55; }
+.chart .series { fill: none; stroke-width: 2.2; stroke-linejoin: round; }
+.chart .crash { stroke-width: 2.4; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+.key { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); }
+.key span { display: inline-flex; align-items: center; gap: 6px; }
+.key i { display: inline-block; width: 18px; height: 10px; border-radius: 2px; }
+footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; }
+@media (max-width: 560px) { .scene .ruler { display: none; } .live { margin-left: 0; } .picker { grid-template-columns: 1fr; } }
+</style>
+
+<div class="page">
+  <header>
+    <p class="eyebrow">__EYEBROW__</p>
+    <h1>Simulateur TP4</h1>
+    <p class="lede">La voiture roule vers le passage piéton, placé en x = 0 m. Le piéton traverse du trottoir du bas vers le haut. Chaque vue rejoue une vraie trace de <code>sim.run()</code>, avec la graine indiquée.</p>
+    <p class="notice">__NOTICE__</p>
+  </header>
+
+  <div class="picker" id="picker"></div>
+
+  <section class="case" id="case" aria-live="polite"></section>
+
+  <div class="player">
+    <button class="btn" id="play" type="button">▶ Lecture</button>
+    <button class="btn secondary" id="restart" type="button">↺ Début</button>
+    <input class="scrub" id="scrub" type="range" min="0" max="1" step="0.05" value="0" aria-label="Instant de la simulation">
+    <span class="time" id="time">t = 0,00 s</span>
+    <select class="rate" id="rate" aria-label="Vitesse de lecture">
+      <option value="0.25">× 0,25</option>
+      <option value="0.5">× 0,5</option>
+      <option value="1" selected>× 1</option>
+      <option value="2">× 2</option>
+    </select>
+  </div>
+
+  <div class="runs" id="runs"></div>
+
+  <div class="key" aria-label="Légende de la vue de dessus">
+    <span><i style="background: var(--pedestrian)"></i>piéton (contour pointillé : partiellement masqué)</span>
+    <span><i style="background: var(--beam)"></i>trait jaune : le système reçoit une mesure du piéton</span>
+    <span><i style="background: #ff2a1a"></i>feux arrière : freinage</span>
+  </div>
+
+  <div class="legend" id="legend"></div>
+  <div class="charts">
+    <div class="chart">
+      <h3>Vitesse de la voiture</h3>
+      <span class="sub">km/h, en fonction du temps (s)</span>
+      <svg id="chart-speed" viewBox="0 0 600 230" role="img" aria-label="Vitesse en fonction du temps"></svg>
+    </div>
+    <div class="chart">
+      <h3>Distance voiture – piéton</h3>
+      <span class="sub">m, axe coupé à 15 m ; ligne orange : 2 m exigés par R2</span>
+      <svg id="chart-dist" viewBox="0 0 600 230" role="img" aria-label="Distance en fonction du temps"></svg>
+    </div>
+  </div>
+
+  <footer>
+    <p>__FOOTER__ Modèle jouet à visée pédagogique : il ne reproduit aucun véhicule ni aucun événement réel. Vue de dessus à l'échelle ; le piéton est légèrement agrandi pour rester visible.</p>
+  </footer>
+</div>
+
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(function () {
+  var D = JSON.parse(document.getElementById("data").textContent);
+  var G = D.geometry;
+  var ACTION_FR = { "continue": "continue", "brake": "freine", "slow": "ralentit" };
+  var NS = "http://www.w3.org/2000/svg";
+  var YTOP = 7, YBOT = -6.5, XMAX = 8;
+
+  var state = { idx: 0, t: 0, playing: false, rate: 1, last: null, T: 1 };
+
+  function fr(x, d) { return Number(x).toLocaleString("fr-FR", { minimumFractionDigits: d, maximumFractionDigits: d }); }
+  function el(tag, attrs, parent) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  function h(tag, cls, text, parent) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  function colorOf(run) { return "var(--run" + run.color + ")"; }
+
+  function at(run, t) {
+    var s = run.steps, n = s.length;
+    if (t <= s[0][0]) return { x: s[0][1], v: s[0][2], py: s[0][3], obs: s[0][4], act: s[0][5], dec: s[0][6], d: s[0][7], end: false };
+    if (t >= s[n - 1][0]) { var e = s[n - 1]; return { x: e[1], v: e[2], py: e[3], obs: e[4], act: e[5], dec: e[6], d: e[7], end: true }; }
+    var i = Math.min(n - 2, Math.floor(t / G.dt + 1e-6));
+    while (i > 0 && s[i][0] > t) i--;
+    while (i < n - 2 && s[i + 1][0] <= t) i++;
+    var a = s[i], b = s[i + 1], f = (t - a[0]) / (b[0] - a[0]);
+    return { x: a[1] + (b[1] - a[1]) * f, v: a[2] + (b[2] - a[2]) * f, py: a[3] + (b[3] - a[3]) * f,
+             obs: a[4], act: a[5], dec: a[6], d: a[7] + (b[7] - a[7]) * f, end: false };
+  }
+
+  function status(run) {
+    var last = run.steps[run.steps.length - 1];
+    if (run.collision) return { cls: "bad", text: "Collision à t = " + fr(run.collision_time, 2) + " s, " + Math.round(last[2] * 3.6) + " km/h" };
+    if (run.min_distance == null) return { cls: "ok", text: "Piéton jamais sur la voie, pas de collision" };
+    var d = run.min_distance;
+    if (run.final_speed === 0) {
+      return d < 2 ? { cls: "warn", text: "Arrêt à " + fr(d, 2) + " m du piéton : moins que les 2 m exigés (R2)" }
+                   : { cls: "ok", text: "Arrêt à " + fr(d, 2) + " m du piéton" };
+    }
+    return d < 2 ? { cls: "warn", text: "Pas de collision, mais distance minimale " + fr(d, 2) + " m (< 2 m)" }
+                 : { cls: "ok", text: "Pas de collision, distance minimale " + fr(d, 2) + " m" };
+  }
+
+  function paramChips(c, parent) {
+    var p = c.params;
+    var items = [
+      ["vitesse", Math.round(p.car_speed * 3.6) + " km/h"],
+      ["distance au passage", fr(p.initial_distance, 0) + " m"],
+      ["piéton", "y = " + fr(p.pedestrian_y, 1) + " m, " + fr(p.pedestrian_speed, 1) + " m/s"],
+      ["luminosité", fr(p.luminosity, 1)],
+      ["masquage", fr(p.occlusion, 1)],
+      ["adhérence", fr(p.friction, 1)],
+      ["trames perdues", Math.round(p.sensor_dropout * 100) + " %"],
+      ["latence", fr(p.sensor_latency_ms, 0) + " ms"],
+      ["panne", c.fault || "aucune"],
+      ["graine", String(c.seed)]
+    ];
+    items.forEach(function (it) {
+      var s = h("span", "param", null, parent);
+      s.append(it[0] + " ");
+      h("b", null, it[1], s);
+    });
+  }
+
+  function buildPicker() {
+    var picker = document.getElementById("picker");
+    var groups = [];
+    D.cases.forEach(function (c, i) {
+      var g = groups.find(function (x) { return x.name === c.group; });
+      if (!g) { g = { name: c.group, items: [] }; groups.push(g); }
+      g.items.push(i);
+    });
+    groups.forEach(function (g) {
+      h("span", "group-label", g.name, picker);
+      var chips = h("div", "chips", null, picker);
+      g.items.forEach(function (i) {
+        var b = h("button", "chip", D.cases[i].label, chips);
+        b.type = "button";
+        b.dataset.idx = i;
+        b.addEventListener("click", function () { select(i); });
+      });
+    });
+  }
+
+  function buildScene(run, c, color) {
+    var p = run.params || c.params;  // chaque voiture a sa propre situation (comparaisons)
+    var x0 = -(p.initial_distance + 1);
+    var svg = el("svg", { "class": "scene", viewBox: x0 + " " + (-YTOP) + " " + (XMAX - x0) + " " + (YTOP - YBOT), role: "img",
+                          "aria-label": "Vue de dessus : " + run.label });
+    var w = el("g", { transform: "scale(1,-1)" }, svg);
+    el("rect", { "class": "sidewalk", x: x0, y: YBOT, width: XMAX - x0, height: YTOP - YBOT }, w);
+    el("rect", { "class": "road", x: x0, y: -G.lane_half_width, width: XMAX - x0, height: 7 }, w);
+    el("line", { "class": "curb", x1: x0, x2: XMAX, y1: -G.lane_half_width, y2: -G.lane_half_width }, w);
+    el("line", { "class": "curb", x1: x0, x2: XMAX, y1: 5.25, y2: 5.25 }, w);
+    el("line", { "class": "lane-line", x1: x0, x2: XMAX, y1: G.lane_half_width, y2: G.lane_half_width }, w);
+    for (var y = -1.45; y < 5.0; y += 1.0) el("rect", { "class": "zebra", x: -1.5, y: y, width: 3, height: 0.5 }, w);
+    var night = Math.max(0, (1 - p.luminosity) * 0.62);
+    el("rect", { "class": "night", x: x0, y: YBOT, width: XMAX - x0, height: YTOP - YBOT, "fill-opacity": night }, w);
+    var light = el("polygon", { "class": "headlight", points: "0,-0.7 0,0.7 16,3 16,-3", "fill-opacity": night > 0.2 ? 0.2 : 0 }, w);
+    var beam = el("line", { "class": "beam", x1: 0, y1: 0, x2: 0, y2: 0 }, w);
+    var halo = el("circle", { "class": "halo", cx: 0, cy: 0, r: 0.75 }, w);
+    var ped = el("circle", { "class": "ped" + (p.occlusion > 0 ? " hidden-part" : ""), cx: 0, cy: 0, r: 0.38 }, w);
+    var car = el("g", {}, w);
+    el("rect", { x: -G.car_length, y: -G.car_half_width, width: G.car_length, height: 2 * G.car_half_width, rx: 0.35,
+                 style: "fill:" + color }, car);
+    el("rect", { "class": "glass", x: -1.75, y: -0.72, width: 0.55, height: 1.44, rx: 0.12 }, car);
+    el("rect", { "class": "glass", x: -3.9, y: -0.66, width: 0.4, height: 1.32, rx: 0.1 }, car);
+    var brakes = el("g", {}, car);
+    el("rect", { "class": "brake", x: -G.car_length - 0.06, y: 0.45, width: 0.22, height: 0.4 }, brakes);
+    el("rect", { "class": "brake", x: -G.car_length - 0.06, y: -0.85, width: 0.22, height: 0.4 }, brakes);
+    var burst = el("circle", { "class": "burst", cx: 0, cy: 0, r: 1.3 }, w);
+    var dim = el("g", {}, w);
+    var dimLine = el("line", { "class": "dim", x1: 0, x2: 0, y1: -1.2, y2: -1.2 }, dim);
+    var dimText = el("text", { "class": "dim-text", x: 0, y: 0, "text-anchor": "middle" }, svg);
+    for (var m = Math.ceil(x0 / 10) * 10; m <= 0; m += 10) {
+      el("text", { "class": "ruler", x: m, y: 6.2, "text-anchor": "middle" }, svg).textContent = m === 0 ? "passage (0 m)" : m + " m";
+    }
+    return { svg: svg, light: light, beam: beam, halo: halo, ped: ped, car: car, brakes: brakes, burst: burst,
+             dim: dim, dimLine: dimLine, dimText: dimText };
+  }
+
+  var views = [];
+
+  function select(i) {
+    state.idx = i;
+    var c = D.cases[i];
+    document.querySelectorAll(".chip").forEach(function (b) { b.setAttribute("aria-pressed", String(+b.dataset.idx === i)); });
+    var box = document.getElementById("case");
+    box.textContent = "";
+    h("h2", null, c.label, box);
+    if (c.defect) h("p", "defect", c.defect, box);
+    h("p", null, c.text, box);
+    [].concat(c.note || []).forEach(function (n) { h("p", "note", n, box); });
+    paramChips(c, h("div", "params", null, box));
+
+    var runsBox = document.getElementById("runs");
+    runsBox.textContent = "";
+    views = [];
+    var legend = document.getElementById("legend");
+    legend.textContent = "";
+    state.T = 0;
+    c.runs.forEach(function (run, k) {
+      var color = colorOf(run, k, c.runs);
+      state.T = Math.max(state.T, run.steps[run.steps.length - 1][0]);
+      var wrap = h("div", "run", null, runsBox);
+      var head = h("div", "run-head", null, wrap);
+      var sw = h("span", "swatch", null, head); sw.style.background = color;
+      h("span", "run-name", run.label, head);
+      var st = status(run);
+      h("span", "pill " + st.cls, st.text, head);
+      var live = h("span", "live", null, head);
+      var scene = buildScene(run, c, color);
+      wrap.appendChild(scene.svg);
+      var det = h("details", "log", null, wrap);
+      h("summary", null, "Journal de la simulation (" + run.log.length + " événements)", det);
+      var ol = h("ol", null, null, det);
+      var items = run.log.map(function (line) {
+        var li = h("li", null, line, ol);
+        var m = /^t=([\d.]+)/.exec(line);
+        return { li: li, t: m ? parseFloat(m[1]) : 0 };
+      });
+      var lg = h("span", null, null, legend);
+      var sw2 = h("span", "swatch", null, lg); sw2.style.background = color;
+      lg.append(run.label);
+      views.push({ run: run, scene: scene, live: live, items: items, color: color });
+    });
+    var scrub = document.getElementById("scrub");
+    scrub.max = state.T;
+    buildChart(document.getElementById("chart-speed"), c, function (s) { return s[2] * 3.6; }, 60, 10, null);
+    buildChart(document.getElementById("chart-dist"), c, function (s) { return s[7]; }, 15, 5, 2);
+    setTime(0);
+    pause();
+  }
+
+  var charts = {};
+  function buildChart(svg, c, value, yMax, yStep, threshold) {
+    svg.textContent = "";
+    var W = 600, H = 230, L = 42, R = 12, T = 10, B = 30;
+    var sx = function (t) { return L + (W - L - R) * t / state.T; };
+    var sy = function (v) { return T + (H - T - B) * (1 - Math.min(v, yMax) / yMax); };
+    for (var v = 0; v <= yMax + 1e-9; v += yStep) {
+      el("line", { "class": v === 0 ? "axis" : "grid", x1: L, x2: W - R, y1: sy(v), y2: sy(v) }, svg);
+      el("text", { "class": "tick", x: L - 6, y: sy(v) + 4, "text-anchor": "end" }, svg).textContent = String(v);
+    }
+    var step = state.T <= 6 ? 1 : state.T <= 12 ? 2 : 3;
+    for (var t = 0; t <= state.T + 1e-9; t += step) {
+      el("text", { "class": "tick", x: sx(t), y: H - 10, "text-anchor": "middle" }, svg).textContent = String(t);
+    }
+    el("line", { "class": "axis", x1: L, x2: L, y1: T, y2: H - B }, svg);
+    if (threshold != null) {
+      el("line", { "class": "threshold", x1: L, x2: W - R, y1: sy(threshold), y2: sy(threshold) }, svg);
+      el("text", { "class": "threshold-label", x: W - R - 4, y: sy(threshold) - 5, "text-anchor": "end" }, svg).textContent = "2 m (R2)";
+    }
+    views.forEach(function (vw) {
+      var pts = vw.run.steps.map(function (s) { return sx(s[0]).toFixed(1) + "," + sy(value(s)).toFixed(1); }).join(" ");
+      el("polyline", { "class": "series", points: pts, style: "stroke:" + vw.color }, svg);
+      if (vw.run.collision) {
+        var e = vw.run.steps[vw.run.steps.length - 1];
+        var x = sx(e[0]), y = sy(value(e)), r = 6;
+        el("path", { "class": "crash", d: "M" + (x - r) + "," + (y - r) + "L" + (x + r) + "," + (y + r) + "M" + (x - r) + "," + (y + r) + "L" + (x + r) + "," + (y - r),
+                     style: "stroke:" + vw.color }, svg);
+      }
+    });
+    var cursor = el("line", { "class": "cursor", x1: L, x2: L, y1: T, y2: H - B }, svg);
+    charts[svg.id] = { cursor: cursor, sx: sx };
+  }
+
+  function render() {
+    var c = D.cases[state.idx];
+    views.forEach(function (vw) {
+      var s = at(vw.run, state.t), sc = vw.scene;
+      sc.car.setAttribute("transform", "translate(" + s.x.toFixed(3) + ",0)");
+      sc.brakes.style.display = s.dec > 0 ? "" : "none";
+      sc.ped.setAttribute("cy", s.py.toFixed(3));
+      sc.halo.setAttribute("cy", s.py.toFixed(3));
+      sc.light.setAttribute("transform", "translate(" + s.x.toFixed(3) + ",0)");
+      sc.beam.setAttribute("x1", s.x.toFixed(3));
+      sc.beam.setAttribute("y2", s.py.toFixed(3));
+      sc.beam.style.display = s.obs && !(s.end && vw.run.collision) ? "" : "none";
+      var crashed = vw.run.collision && s.end;
+      sc.burst.style.display = crashed ? "" : "none";
+      sc.burst.setAttribute("cx", 0);
+      sc.burst.setAttribute("cy", s.py.toFixed(3));
+      var showDim = s.v === 0 && Math.abs(s.py) <= G.lane_half_width && !crashed;
+      sc.dim.style.display = showDim ? "" : "none";
+      sc.dimText.style.display = showDim ? "" : "none";
+      if (showDim) {
+        var pedEdge = -G.pedestrian_radius;
+        sc.dimLine.setAttribute("x1", s.x.toFixed(3));
+        sc.dimLine.setAttribute("x2", pedEdge.toFixed(3));
+        sc.dimLine.setAttribute("y1", s.py.toFixed(3));
+        sc.dimLine.setAttribute("y2", s.py.toFixed(3));
+        sc.dimText.setAttribute("x", (s.x - G.car_length / 2).toFixed(3));
+        sc.dimText.setAttribute("y", (-s.py - 1.25).toFixed(3));
+        sc.dimText.textContent = fr(s.d, 2) + " m";
+      }
+      vw.live.textContent = "";
+      [["", Math.round(s.v * 3.6) + " km/h"], ["", fr(s.d, 1) + " m"], ["", ACTION_FR[D.actions[s.act]] || D.actions[s.act]],
+       ["", s.obs ? "mesure reçue" : "aucune mesure"]].forEach(function (p) { h("b", null, p[1], vw.live); });
+      vw.items.forEach(function (it) { it.li.classList.toggle("future", it.t > state.t + 1e-6); });
+    });
+    Object.keys(charts).forEach(function (id) {
+      var ch = charts[id], x = ch.sx(state.t);
+      ch.cursor.setAttribute("x1", x); ch.cursor.setAttribute("x2", x);
+    });
+    document.getElementById("time").textContent = "t = " + fr(state.t, 2) + " s";
+    document.getElementById("scrub").value = state.t;
+  }
+
+  function setTime(t) { state.t = Math.max(0, Math.min(state.T, t)); render(); }
+  function play() {
+    if (state.t >= state.T - 1e-6) state.t = 0;
+    state.playing = true; state.last = null;
+    document.getElementById("play").textContent = "❚❚ Pause";
+    requestAnimationFrame(tick);
+  }
+  function pause() { state.playing = false; document.getElementById("play").textContent = "▶ Lecture"; }
+  function tick(now) {
+    if (!state.playing) return;
+    if (state.last != null) setTime(state.t + (now - state.last) / 1000 * state.rate);
+    state.last = now;
+    if (state.t >= state.T - 1e-6) { pause(); return; }
+    requestAnimationFrame(tick);
+  }
+
+  document.getElementById("play").addEventListener("click", function () { state.playing ? pause() : play(); });
+  document.getElementById("restart").addEventListener("click", function () { setTime(0); });
+  document.getElementById("scrub").addEventListener("input", function (e) { pause(); setTime(parseFloat(e.target.value)); });
+  document.getElementById("rate").addEventListener("change", function (e) { state.rate = parseFloat(e.target.value); });
+  document.addEventListener("keydown", function (e) {
+    if (e.code !== "Space") return;
+    var tag = (e.target.tagName || "").toLowerCase();
+    if (tag === "button" || tag === "input" || tag === "select" || tag === "summary") return;
+    e.preventDefault();
+    state.playing ? pause() : play();
+  });
+
+  buildPicker();
+  var start = D.cases.findIndex(function (c) { return c.id === location.hash.slice(1); });
+  if (start < 0) start = D.cases.findIndex(function (c) { return c.id === D.start; });
+  select(Math.max(0, start));
+  window.addEventListener("hashchange", function () {
+    var i = D.cases.findIndex(function (c) { return c.id === location.hash.slice(1); });
+    if (i >= 0) select(i);
+  });
+})();
+</script>

@@ -1,0 +1,14 @@
+{
+  "description": "Le piéton marche sur le trottoir en s'éloignant de la route : aucun conflit.",
+  "name": "pieton_s_eloigne",
+  "car_speed": 13.9,
+  "initial_distance": 45.0,
+  "pedestrian_y": -2.5,
+  "pedestrian_speed": -1.0,
+  "occlusion": 0.0,
+  "luminosity": 1.0,
+  "friction": 0.8,
+  "sensor_noise": 0.1,
+  "sensor_latency_ms": 0,
+  "sensor_dropout": 0.0
+}

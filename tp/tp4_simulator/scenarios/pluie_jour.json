@@ -1,0 +1,14 @@
+{
+  "description": "Jour de pluie : chaussée mouillée, capteur un peu plus bruité.",
+  "name": "pluie_jour",
+  "car_speed": 13.9,
+  "initial_distance": 50.0,
+  "pedestrian_y": -3.0,
+  "pedestrian_speed": 1.2,
+  "occlusion": 0.0,
+  "luminosity": 0.7,
+  "friction": 0.5,
+  "sensor_noise": 0.2,
+  "sensor_latency_ms": 50,
+  "sensor_dropout": 0.0
+}

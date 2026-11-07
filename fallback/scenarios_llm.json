@@ -1,0 +1,15 @@
+{
+  "_note": "Exemple pédagogique de sortie plausible d'un LLM, pas un résultat d'expérience. Utilisé par : python tools/random_scenarios.py --llm-fallback",
+  "scenarios": [
+    {"name": "nuit_pluie", "car_speed": 13.9, "initial_distance": 40, "pedestrian_y": -3.5, "pedestrian_speed": 1.3, "luminosity": 0.25, "occlusion": 0.3, "friction": 0.5},
+    {"name": "pieton_surgit_entre_voitures", "car_speed": 13.9, "initial_distance": 18, "pedestrian_y": -2.0, "pedestrian_speed": 1.5, "occlusion": 0.8},
+    {"name": "enfant_qui_court", "car_speed": 11.0, "initial_distance": 35, "pedestrian_y": -4.0, "pedestrian_speed": 3.5},
+    {"name": "marche_arriere", "car_speed": -5.0, "initial_distance": 30, "pedestrian_y": -3.0, "pedestrian_speed": 1.0},
+    {"name": "pieton_sur_le_terre_plein", "car_speed": 13.9, "initial_distance": 50, "pedestrian_y": 14.0, "pedestrian_speed": -1.2},
+    {"name": "brouillard_epais", "car_speed": 13.9, "initial_distance": 45, "pedestrian_y": -3.0, "pedestrian_speed": 1.2, "visibility": 0.2},
+    {"name": "verglas", "car_speed": 13.9, "initial_distance": 60, "pedestrian_y": -3.0, "pedestrian_speed": 1.2, "friction": 0.05},
+    {"name": "capteur_lent", "car_speed": 13.9, "initial_distance": 45, "pedestrian_y": -3.0, "pedestrian_speed": 1.2, "sensor_latency_ms": 250},
+    {"name": "crepuscule", "car_speed": 12.5, "initial_distance": 42, "pedestrian_y": -3.2, "pedestrian_speed": 1.1, "luminosity": 0.5, "occlusion": 0.2, "sensor_noise": 0.15},
+    {"name": "pieton_immobile_trottoir", "car_speed": 13.9, "initial_distance": 45, "pedestrian_y": -2.8, "pedestrian_speed": 0.0}
+  ]
+}

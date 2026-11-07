@@ -1,0 +1,7 @@
+# Mutants bonus pour remise.py (make mutate EXTRA=1).
+# Format : ligne | texte d'origine | texte muté | question à vous poser
+# Ces mutants ne sont pas générés automatiquement : ils ont été écrits à la main.
+3 | prix * 0.80 | prix * 0.8000001 | Survit-il à vos tests ? Est-ce la faute de pytest.approx ? Est-ce grave ?
+6 | return prix | return prix * 1.0 | Est-il équivalent ? Quel test (type du résultat ?) pourrait le tuer ?
+2 | fidelite >= 10 | fidelite > 9 | Équivalent si la fidélité est un entier : que dit la SPEC ?
+4 | if fidelite >= 5: | if fidelite >= 5 and prix > 0: | Équivalent sur le domaine valide de la SPEC (prix >= 0) ?

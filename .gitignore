@@ -1,0 +1,17 @@
+__pycache__/
+.pytest_cache/
+.hypothesis/
+.cache/
+.mutmut-cache
+mutants/
+.coverage
+htmlcov/
+*.bak
+tp/tp1_generation/generated_tests/test_*.py
+tp/tp4_simulator/score.json
+
+# Archives produites par instructor/make_student_repo.py (Moodle)
+dist/
+
+# Pages produites par tools/voir_simulation.py
+tp/tp4_simulator/vues/

@@ -1,0 +1,18 @@
+# Le matériel enseignant n'entre jamais dans l'image étudiante (voir make build-instructor).
+instructor
+README_enseignant.md
+dist
+.git
+.github
+**/__pycache__
+**/.pytest_cache
+**/.hypothesis
+**/.cache
+.mutmut-cache
+mutants
+.coverage
+htmlcov
+**/generated_tests/test_*
+**/*.bak
+**/score.json
+tp/tp4_simulator/vues

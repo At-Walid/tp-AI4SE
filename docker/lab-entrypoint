@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Point d'entrée du conteneur : lance Ollama en arrière-plan, puis la commande demandée.
+lab-start-ollama || true
+exec "$@"

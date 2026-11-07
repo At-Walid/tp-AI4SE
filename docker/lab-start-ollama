@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Démarre le serveur Ollama local en arrière-plan s'il ne tourne pas déjà.
+# --wait : attend qu'il réponde (jusqu'à 30 s).
+if ollama list >/dev/null 2>&1; then
+  exit 0
+fi
+setsid nohup ollama serve >/tmp/ollama.log 2>&1 </dev/null &
+if [ "$1" = "--wait" ]; then
+  for _ in $(seq 1 60); do
+    ollama list >/dev/null 2>&1 && exit 0
+    sleep 0.5
+  done
+  echo "Ollama ne répond pas : voir /tmp/ollama.log" >&2
+  exit 1
+fi

@@ -1,0 +1,14 @@
+{
+  "description": "Cas fil rouge du cours : faible luminosité, piéton partiellement masqué qui traverse.",
+  "name": "nuit_pieton_partiellement_cache",
+  "car_speed": 13.9,
+  "initial_distance": 45.0,
+  "pedestrian_y": -3.0,
+  "pedestrian_speed": 1.2,
+  "occlusion": 0.5,
+  "luminosity": 0.3,
+  "friction": 0.8,
+  "sensor_noise": 0.1,
+  "sensor_latency_ms": 0,
+  "sensor_dropout": 0.0
+}

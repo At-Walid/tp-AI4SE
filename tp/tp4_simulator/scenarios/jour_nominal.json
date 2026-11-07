@@ -1,0 +1,14 @@
+{
+  "description": "Plein jour, route sèche : un piéton traverse depuis le trottoir de droite.",
+  "name": "jour_nominal",
+  "car_speed": 13.9,
+  "initial_distance": 45.0,
+  "pedestrian_y": -3.0,
+  "pedestrian_speed": 1.2,
+  "occlusion": 0.0,
+  "luminosity": 1.0,
+  "friction": 0.8,
+  "sensor_noise": 0.1,
+  "sensor_latency_ms": 0,
+  "sensor_dropout": 0.0
+}
